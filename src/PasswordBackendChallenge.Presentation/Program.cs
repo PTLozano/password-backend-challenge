@@ -1,7 +1,6 @@
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-builder.Services.AddServices();
 builder.Services.AddPasswordMetrics();
 builder.Services.Configure<PasswordSettings>(builder.Configuration.GetSection(nameof(PasswordSettings)));
 
@@ -10,7 +9,7 @@ builder.Configuration.GetSection(nameof(RateLimitSettings)).Bind(rateLimitSettin
 
 if (rateLimitSettings.Enabled)
 {
-    builder.Services.AddRateLimiting();
+    builder.Services.AddRateLimiting(rateLimitSettings);
 }
 
 WebApplication app = builder.Build();
