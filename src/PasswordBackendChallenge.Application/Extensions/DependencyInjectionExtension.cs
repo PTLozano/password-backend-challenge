@@ -12,7 +12,7 @@ public static class DependencyInjectionExtension
         services.AddSwaggerGen();
     }
 
-    public static void AddRateLimiting(this IServiceCollection services)
+    public static void AddRateLimiting(this IServiceCollection services, RateLimitSettings rateLimitSettings)
     {
         services.AddRateLimiter(options =>
         {
@@ -28,8 +28,8 @@ public static class DependencyInjectionExtension
                         $"{httpContext.Connection.RemoteIpAddress}-public",
                         _ => new()
                         {
-                            PermitLimit = 5,
-                            Window = TimeSpan.FromMinutes(10)
+                            PermitLimit = rateLimitSettings.PasswordPermitLimit,
+                            Window = TimeSpan.FromSeconds(rateLimitSettings.PasswordWindowInSeconds)
                         });
                 }
 
@@ -37,8 +37,8 @@ public static class DependencyInjectionExtension
                     httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
                     _ => new()
                     {
-                        PermitLimit = 1000,
-                        Window = TimeSpan.FromSeconds(1)
+                        PermitLimit = rateLimitSettings.GlobalPermitLimit,
+                        Window = TimeSpan.FromSeconds(rateLimitSettings.GlobalWindowInSeconds)
                     });
             });
         });
