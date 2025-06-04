@@ -1,9 +1,6 @@
-// Global using directives
-
 global using FluentValidation;
 global using FluentValidation.Results;
 global using Microsoft.AspNetCore.Mvc;
-global using Microsoft.AspNetCore.RateLimiting;
 global using Microsoft.Extensions.Options;
 global using PasswordBackendChallenge.Application.ApiKey;
 global using PasswordBackendChallenge.Application.Extensions;

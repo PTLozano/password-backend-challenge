@@ -3,8 +3,8 @@ namespace PasswordBackendChallenge.Shared.Metrics;
 public sealed class PasswordMetric : IPasswordMetric
 {
     private readonly Histogram<double> _processDuration;
-    private readonly Counter<int> _resultErrorType;
     private readonly Counter<int> _result;
+    private readonly Counter<int> _resultErrorType;
 
     public PasswordMetric(IMeterFactory meterFactory)
     {

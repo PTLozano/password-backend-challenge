@@ -44,6 +44,7 @@ public static class Helper
             ]
         };
 }
+
 public class TestOptionsMonitor<TOptions>(TOptions currentValue) : IOptionsMonitor<TOptions>
 {
     private Action<TOptions, string> _listener;
@@ -55,15 +56,16 @@ public class TestOptionsMonitor<TOptions>(TOptions currentValue) : IOptionsMonit
         return CurrentValue;
     }
 
+    public IDisposable OnChange(Action<TOptions, string> listener)
+    {
+        _listener = listener;
+
+        return Mock.Of<IDisposable>();
+    }
+
     public void Set(TOptions value)
     {
         CurrentValue = value;
         _listener.Invoke(value, null);
-    }
-
-    public IDisposable OnChange(Action<TOptions, string> listener)
-    {
-        _listener = listener;
-        return Mock.Of<IDisposable>();
     }
 }

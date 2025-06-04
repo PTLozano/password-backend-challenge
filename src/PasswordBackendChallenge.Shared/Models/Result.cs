@@ -7,4 +7,4 @@ public record Result(
 )
 {
     public bool IsValid => Success;
-};
+}

@@ -25,8 +25,8 @@ public static class DependencyInjectionExtension
                 if (path.StartsWith("/api/password/validate", StringComparison.InvariantCultureIgnoreCase))
                 {
                     return RateLimitPartition.GetFixedWindowLimiter(
-                        partitionKey: $"{httpContext.Connection.RemoteIpAddress}-public",
-                        factory: _ => new()
+                        $"{httpContext.Connection.RemoteIpAddress}-public",
+                        _ => new()
                         {
                             PermitLimit = 5,
                             Window = TimeSpan.FromMinutes(10)
@@ -34,8 +34,8 @@ public static class DependencyInjectionExtension
                 }
 
                 return RateLimitPartition.GetFixedWindowLimiter(
-                    partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-                    factory: _ => new()
+                    httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    _ => new()
                     {
                         PermitLimit = 1000,
                         Window = TimeSpan.FromSeconds(1)

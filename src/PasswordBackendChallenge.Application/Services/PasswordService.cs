@@ -82,7 +82,9 @@ public sealed class PasswordService(ILogger<PasswordService> logger, IPasswordMe
         foreach (char c in password)
         {
             if (!characters.Contains(c))
+            {
                 continue;
+            }
 
             // Verifica se o caracter já foi adicionado ao dicionário
             if (!dictionary.TryAdd(c, 1))

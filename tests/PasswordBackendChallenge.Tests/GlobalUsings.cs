@@ -1,10 +1,7 @@
-// Global using directives
-
 global using System;
 global using System.Net;
 global using System.Net.Http.Json;
 global using System.Threading.Tasks;
-global using FluentValidation;
 global using FluentValidation.TestHelper;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Mvc.Testing;

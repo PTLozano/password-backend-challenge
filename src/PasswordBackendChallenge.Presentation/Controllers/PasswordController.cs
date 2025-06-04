@@ -10,7 +10,6 @@ public class PasswordController(
     IValidator<PasswordRequest> validator) : Controller
 {
     [ApiKey]
-    // [EnableRateLimiting("password-validate")]
     [HttpPost("validate")]
     public async Task<IActionResult> Validate([FromBody] PasswordRequest data)
     {

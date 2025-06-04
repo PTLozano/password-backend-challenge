@@ -28,7 +28,7 @@ public class PasswordApiTests(WebApplicationFactory<PasswordController> factory)
         HttpResponseMessage response = await client.PostAsJsonAsync("/api/password/validate", request);
 
         // Assert
-        if(expected)
+        if (expected)
         {
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             PasswordResponse responseBody = await response.Content.ReadFromJsonAsync<PasswordResponse>();

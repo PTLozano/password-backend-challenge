@@ -55,7 +55,7 @@ public static class TelemetryExtension
                    .AddPrometheusHttpListener(opt => opt.UriPrefixes = new[] { "http://*:9096/" })
                    .AddPrometheusExporter()
                    .AddView(
-                        instrumentName: "password_process_duration",
+                        "password_process_duration",
                         new ExplicitBucketHistogramConfiguration
                         {
                             Boundaries = [0.01, 0.02, 0.05, 0.1, 0.25, 0.5, 1, 1.5, 2, 5, 10, 30]

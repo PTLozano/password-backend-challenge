@@ -13,11 +13,11 @@ public class PasswordRequestValidator : AbstractValidator<PasswordRequest>
 
         PasswordSettings currentSettings = passwordSettings.CurrentValue;
         RuleFor(x => x.Password)
-            .NotEmpty()
-                .WithMessage("A senha não pode estar vazia")
-            .MinimumLength(currentSettings.MinimumPasswordLength)
-                .WithMessage($"A senha precisa ter ao menos {currentSettings.MinimumPasswordLength} caracteres")
-            .MaximumLength(currentSettings.MaximumPasswordLength)
-                .WithMessage($"A senha deve ter no máximo {currentSettings.MaximumPasswordLength} caracteres");
+           .NotEmpty()
+           .WithMessage("A senha não pode estar vazia")
+           .MinimumLength(currentSettings.MinimumPasswordLength)
+           .WithMessage($"A senha precisa ter ao menos {currentSettings.MinimumPasswordLength} caracteres")
+           .MaximumLength(currentSettings.MaximumPasswordLength)
+           .WithMessage($"A senha deve ter no máximo {currentSettings.MaximumPasswordLength} caracteres");
     }
 }

@@ -8,7 +8,7 @@ builder.Services.Configure<PasswordSettings>(builder.Configuration.GetSection(na
 RateLimitSettings rateLimitSettings = new();
 builder.Configuration.GetSection(nameof(RateLimitSettings)).Bind(rateLimitSettings);
 
-if(rateLimitSettings.Enabled)
+if (rateLimitSettings.Enabled)
 {
     builder.Services.AddRateLimiting();
 }
@@ -34,7 +34,7 @@ app.UseOpenTelemetryPrometheusScrapingEndpoint("/metrics");
 
 app.MapHealthChecks("/healthy");
 
-if(rateLimitSettings.Enabled)
+if (rateLimitSettings.Enabled)
 {
     app.UseRateLimiter();
 }
@@ -42,7 +42,7 @@ if(rateLimitSettings.Enabled)
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "default",
+    "default",
     "{controller}/{action=Index}/{id?}");
 
 app.Run();
