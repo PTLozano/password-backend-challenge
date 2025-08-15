@@ -1,3 +1,5 @@
+using PasswordBackendChallenge.Application.Roles;
+
 namespace PasswordBackendChallenge.Application.Services;
 
 public sealed class PasswordService(ILogger<PasswordService> logger, IPasswordMetric metric) : IPasswordService
@@ -50,7 +52,8 @@ public sealed class PasswordService(ILogger<PasswordService> logger, IPasswordMe
         {
             if (!complexity.Enabled)
             {
-                logger.LogTrace("Complexidade '{Identifier}' está desabilitada, pulando validação", complexity.Identifier);
+                logger.LogTrace("Complexidade '{Identifier}' está desabilitada, pulando validação",
+                    complexity.Identifier);
 
                 continue;
             }
@@ -59,7 +62,8 @@ public sealed class PasswordService(ILogger<PasswordService> logger, IPasswordMe
 
             if (!result.IsValid)
             {
-                logger.LogError("Validação falhou para a complexidade '{Identifier}': {Message}", complexity.Identifier, result.Message);
+                logger.LogError("Validação falhou para a complexidade '{Identifier}': {Message}", complexity.Identifier,
+                    result.Message);
 
                 return new ErrorResult(result.Message);
             }
@@ -94,12 +98,20 @@ public sealed class PasswordService(ILogger<PasswordService> logger, IPasswordMe
             }
         }
 
+        var first = new ValidateRepeatedCharHandler()
+            .SetNext(new ValidateLowerThanMinimumHandler())
+            .SetNext(new ValidateBiggerThanMinimumHandler());
+        
+       var res =  first.Handle(complexity, dictionary);
+       res =  first.Handle(complexity, dictionary);
+
         // Verifica se a quantidade de caracteres repetidos é maior que o máximo permitido
         if (dictionary.Any(x => x.Value > complexity.MaximumRepeatCharCount))
         {
             metric.AddErrorCount("maximum_repeat_char_count_exceeded");
 
-            return new ErrorResult($"Quantidade máxima de caracteres para {complexity.Identifier} iguais é de {complexity.MaximumRepeatCharCount}");
+            return new ErrorResult(
+                $"Quantidade máxima de caracteres para {complexity.Identifier} iguais é de {complexity.MaximumRepeatCharCount}");
         }
 
         int validCharacterCount = dictionary.Values.Sum();
@@ -109,7 +121,8 @@ public sealed class PasswordService(ILogger<PasswordService> logger, IPasswordMe
         {
             metric.AddErrorCount("minimum_length_not_met");
 
-            return new ErrorResult($"A senha deve conter pelo menos {complexity.MinimumLength} caracter(es) válido(s) para {complexity.Identifier}");
+            return new ErrorResult(
+                $"A senha deve conter pelo menos {complexity.MinimumLength} caracter(es) válido(s) para {complexity.Identifier}");
         }
 
         // Verifica se a quantidade de caracteres válidos é maior que o máximo
@@ -117,7 +130,8 @@ public sealed class PasswordService(ILogger<PasswordService> logger, IPasswordMe
         {
             metric.AddErrorCount("maximum_length_exceeded");
 
-            return new ErrorResult($"A senha deve conter no máximo {complexity.MaximumLength} caracter(es) válido(s) para {complexity.Identifier}");
+            return new ErrorResult(
+                $"A senha deve conter no máximo {complexity.MaximumLength} caracter(es) válido(s) para {complexity.Identifier}");
         }
 
         // Retorna a soma dos valores do dicionário, que representa a quantidade de caracteres válidos
