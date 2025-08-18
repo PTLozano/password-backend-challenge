@@ -12,6 +12,8 @@ global using OpenTelemetry.Metrics;
 global using OpenTelemetry.Resources;
 global using OpenTelemetry.Trace;
 global using PasswordBackendChallenge.Application.ApiKey;
+global using PasswordBackendChallenge.Application.Factories;
+global using PasswordBackendChallenge.Application.Handlers;
 global using PasswordBackendChallenge.Application.Services;
 global using PasswordBackendChallenge.Shared.Dtos;
 global using PasswordBackendChallenge.Shared.Metrics;

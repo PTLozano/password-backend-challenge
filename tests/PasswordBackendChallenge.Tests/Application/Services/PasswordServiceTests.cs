@@ -25,7 +25,7 @@ public class PasswordServiceTests
         PasswordSettings passwordSettings = Helper.CreatePasswordSettings;
 
         // Act
-        Result actual = sut.ValidatePassword(passwordSettings.Complexity, value);
+        Result actual = sut.Validate(passwordSettings.Complexity, value);
 
         // Assert
         if (expected)
@@ -45,7 +45,7 @@ public class PasswordServiceTests
         PasswordService sut = new(new Mock<ILogger<PasswordService>>().Object, new Mock<IPasswordMetric>().Object);
 
         // Act
-        Result actual = sut.ValidatePassword(null, "AbTp9!fok");
+        Result actual = sut.Validate(null, "AbTp9!fok");
 
         // Assert
         Assert.IsType<ErrorResult>(actual);
@@ -60,7 +60,7 @@ public class PasswordServiceTests
         PasswordService sut = new(new Mock<ILogger<PasswordService>>().Object, new Mock<IPasswordMetric>().Object);
 
         // Act
-        Result actual = sut.ValidatePassword(new List<Complexity>(), "AbTp9!fok");
+        Result actual = sut.Validate(new List<Complexity>(), "AbTp9!fok");
 
         // Assert
         Assert.IsType<ErrorResult>(actual);
