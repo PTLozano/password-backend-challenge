@@ -2,9 +2,9 @@ namespace PasswordBackendChallenge.Application.Services;
 
 public sealed class PasswordService(ILogger<PasswordService> logger, IPasswordMetric metric) : IPasswordService
 {
-    public Result ValidatePassword(IReadOnlyCollection<Complexity> complexities, string password)
+    public Result Validate(IReadOnlyCollection<Complexity> complexities, string password)
     {
-        Result result = CheckPasswordComplexities(complexities, password);
+        Result result = CheckComplexities(complexities, password);
 
         if (!result.IsValid)
         {
@@ -25,24 +25,12 @@ public sealed class PasswordService(ILogger<PasswordService> logger, IPasswordMe
         return new ErrorResult("Senha inválida, contém caracteres não permitidos");
     }
 
-    private Result CheckPasswordComplexities(IReadOnlyCollection<Complexity> complexities, string password)
+    private Result CheckComplexities(IReadOnlyCollection<Complexity> complexities, string password)
     {
-        if (string.IsNullOrWhiteSpace(password))
+        Result hasComplexity = HasComplexity(complexities);
+        if (!hasComplexity.IsValid)
         {
-            metric.AddErrorCount("empty_password");
-
-            logger.LogError("A senha não pode ser vazia");
-
-            return new ErrorResult("A senha não pode ser vazia");
-        }
-
-        if (complexities == null || complexities.Count == 0)
-        {
-            metric.AddErrorCount("complexities_not_defined");
-
-            logger.LogError("Nenhuma complexidade definida para validação");
-
-            return new ErrorResult("Nenhuma complexidade definida para validação");
+            return hasComplexity;
         }
 
         int validCharacterCount = 0;
@@ -50,7 +38,7 @@ public sealed class PasswordService(ILogger<PasswordService> logger, IPasswordMe
         {
             if (!complexity.Enabled)
             {
-                logger.LogTrace("Complexidade '{Identifier}' está desabilitada, pulando validação", complexity.Identifier);
+                logger.LogWarning("Complexidade '{Identifier}' está desabilitada, pulando validação", complexity.Identifier);
 
                 continue;
             }
@@ -59,7 +47,8 @@ public sealed class PasswordService(ILogger<PasswordService> logger, IPasswordMe
 
             if (!result.IsValid)
             {
-                logger.LogError("Validação falhou para a complexidade '{Identifier}': {Message}", complexity.Identifier, result.Message);
+                logger.LogError("Validação falhou para a complexidade '{Identifier}': {Message}", complexity.Identifier,
+                                result.Message);
 
                 return new ErrorResult(result.Message);
             }
@@ -70,14 +59,42 @@ public sealed class PasswordService(ILogger<PasswordService> logger, IPasswordMe
         return new SuccessResult(validCharacterCount);
     }
 
-    private Result ValidateComplexity(Complexity complexity, string password)
+    private Result HasComplexity(IReadOnlyCollection<Complexity> complexities)
+    {
+        if (complexities.Count == 0)
+        {
+            metric.AddErrorCount("complexities_not_defined");
+
+            logger.LogError("Nenhuma complexidade definida para validação");
+
+            return new ErrorResult("Nenhuma complexidade definida para validação");
+        }
+
+        return new SuccessResult(-1);
+    }
+
+    private static Result ValidateComplexity(Complexity complexity, string password)
     {
         if (string.IsNullOrWhiteSpace(password))
         {
             return new ErrorResult("A senha não pode ser vazia");
         }
 
-        var dictionary = new Dictionary<char, int>();
+        Dictionary<char, int> dictionary = ProcessChars(complexity, password);
+
+        AbstractHandler handlerChain = new ValidateComplexityFactory().CreateHandler();
+
+        Result result = handlerChain.Handle(complexity, dictionary);
+
+        return result.IsValid ?
+            // Retorna a soma dos valores do dicionário, que representa a quantidade de caracteres válidos
+            new SuccessResult(result.ValidCharacterCount) :
+            result;
+    }
+
+    private static Dictionary<char, int> ProcessChars(Complexity complexity, string password)
+    {
+        Dictionary<char, int> dictionary = new Dictionary<char, int>();
         char[] characters = complexity.Characters.ToCharArray();
         foreach (char c in password)
         {
@@ -94,38 +111,11 @@ public sealed class PasswordService(ILogger<PasswordService> logger, IPasswordMe
             }
         }
 
-        // Verifica se a quantidade de caracteres repetidos é maior que o máximo permitido
-        if (dictionary.Any(x => x.Value > complexity.MaximumRepeatCharCount))
-        {
-            metric.AddErrorCount("maximum_repeat_char_count_exceeded");
-
-            return new ErrorResult($"Quantidade máxima de caracteres para {complexity.Identifier} iguais é de {complexity.MaximumRepeatCharCount}");
-        }
-
-        int validCharacterCount = dictionary.Values.Sum();
-
-        // Verifica se a quantidade de caracteres válidos é menor que o mínimo
-        if (validCharacterCount < complexity.MinimumLength)
-        {
-            metric.AddErrorCount("minimum_length_not_met");
-
-            return new ErrorResult($"A senha deve conter pelo menos {complexity.MinimumLength} caracter(es) válido(s) para {complexity.Identifier}");
-        }
-
-        // Verifica se a quantidade de caracteres válidos é maior que o máximo
-        if (validCharacterCount > complexity.MaximumLength)
-        {
-            metric.AddErrorCount("maximum_length_exceeded");
-
-            return new ErrorResult($"A senha deve conter no máximo {complexity.MaximumLength} caracter(es) válido(s) para {complexity.Identifier}");
-        }
-
-        // Retorna a soma dos valores do dicionário, que representa a quantidade de caracteres válidos
-        return new SuccessResult(validCharacterCount);
+        return dictionary;
     }
 }
 
 public interface IPasswordService
 {
-    Result ValidatePassword(IReadOnlyCollection<Complexity> complexities, string password);
+    Result Validate(IReadOnlyCollection<Complexity> complexities, string password);
 }

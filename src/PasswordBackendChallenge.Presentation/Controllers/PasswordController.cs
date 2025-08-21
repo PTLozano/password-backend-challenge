@@ -7,7 +7,7 @@ public class PasswordController(
     IPasswordMetric metric,
     IPasswordService passwordService,
     IOptionsMonitor<PasswordSettings> passwordSettings,
-    IValidator<PasswordRequest> validator) : Controller
+    IValidator<PasswordRequest> validator) : ControllerBase
 {
     [ApiKey]
     [HttpPost("validate")]
@@ -26,7 +26,7 @@ public class PasswordController(
 
             PasswordSettings currentSettings = passwordSettings.CurrentValue;
 
-            Result result = passwordService.ValidatePassword(currentSettings.Complexity, data.Password);
+            Result result = passwordService.Validate(currentSettings.Complexity, data.Password);
 
             logger.LogTrace("Validação da senha informada: {Result}", result.IsValid ? "Válida" : "Inválida");
 
